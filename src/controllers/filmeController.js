@@ -204,7 +204,7 @@ export const update = async (req, res) => {
         if (duracao !== undefined) {
             const duracaoNum = parseInt(duracao);
 
-            if (isNaN(duracaoNum || duracaoNum <= 0) {
+            if (isNaN(duracaoNum) || duracaoNum <= 0) {
                 return res.status(400).json({
                     error: 'A duracao deve ser um numero positivo',
                 });
@@ -240,7 +240,7 @@ export const update = async (req, res) => {
         if (duracao !== undefined) dataUpdate.duracao = parseInt(duracao);
         if (genero !== undefined) dataUpdate.genero = genero;
         if (nota !== undefined) dataUpdate.nota = Number(nota);
-        const data = await filmeModel.update(id, req.body);
+        const data = await filmeModel.update(id, dataUpdate);
     
         res.json({
             message: `O registro "${data.titulo}" foi atualizado com sucesso!`,
