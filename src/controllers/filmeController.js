@@ -28,7 +28,6 @@ export const create = async (req, res) => {
 
         const { titulo, descricao, duracao, genero, nota } = req.body;
 
-        // Validar título obrigatório
         if (!titulo) {
             return res.status(400).json({ 
                 error: 'O titulo e obrigatorio' 
@@ -51,7 +50,6 @@ export const create = async (req, res) => {
             });
         }
 
-        // Validar descrição obrigatória
         if (!descricao) {
             return res.status(400).json({ 
                 error: 'A descrição do filme e obrigatoria' 
