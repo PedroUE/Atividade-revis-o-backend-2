@@ -1,5 +1,7 @@
 import * as filmeModel from '../models/filmeModel.js';
 
+const GenerosValidos = ['Ação', 'Drama', 'Comédia', 'Terror', 'Romance', 'Animação', 'Ficção Científica', 'Suspense'];
+
 export const getAll = async (req, res) => {
     try {
         const filme = await filmeModel.findAll(req.query);
@@ -17,24 +19,25 @@ export const getAll = async (req, res) => {
 };
 
 export const create = async (req, res) => {
-    try {
+     try {
         if (!req.body || Object.keys(req.body).length === 0) {
             return res.status(400).json({
-                error: 'Corpo da requisição vazio. Envie os dados do filme!',
+                error: 'Você esqueceu de enviar os dados do filme.',
             });
         }
 
-        const { titulo, descricao, duracao, genero, nota, available } = req.body;
+        const { titulo, descricao, duracao, genero, nota } = req.body;
 
-       if (!titulo) {
+        // Validar título obrigatório
+        if (!titulo) {
             return res.status(400).json({ 
-                error: 'O filme precisa de um título!' 
+                error: 'O titulo e obrigatorio' 
             });
-       }
-        
+        }
+
         if (typeof titulo !== 'string' || titulo.trim().length < 3) {
             return res.status(400).json({
-                error: 'O titulo precisa ter pelo menos 3 letras'
+                error: 'O titulo precisa ter pelo menos 3 letras!'
             });
         }
 
@@ -44,13 +47,14 @@ export const create = async (req, res) => {
 
         if (filmeExistente) {
             return res.status(400).json({ 
-                error: 'O Filme com este titulo ja esta catalogado. Tente outro título.' 
+                error: 'O filme ja esta registrado no catálogo' 
             });
         }
 
-        if(!descricao) {
-            return res.status(400).json({
-                error: 'É obrigatório uma descrição para o filme.'
+        // Validar descrição obrigatória
+        if (!descricao) {
+            return res.status(400).json({ 
+                error: 'A descrição do filme e obrigatoria' 
             });
         }
 
@@ -60,47 +64,47 @@ export const create = async (req, res) => {
             });
         }
 
-        if (duracao === undefined || duracao null) {
-            return res.status(400).json({
-                error: 'A duração é obrigatória'
+        if (duracao === undefined || duracao === null) {
+            return res.status(400).json({ 
+                error: 'A duração é obrigatória!' 
             });
         }
 
-        const duracaoNum  = parseInt(duracao);
+        const duracaoNum = parseInt(duracao);
         if (isNaN(duracaoNum) || duracaoNum <= 0) {
             return res.status(400).json({
-                error: 'A duracao precisa ser um numero positivo'
+                error: 'A duração precisa ser um número positivo!'
             });
         }
-
+         
         if (duracaoNum > 300) {
             return res.status(400).json({
-                error: 'O maximo permitido e 300 minutos!'
+                error: 'O filme deve ter no maximo 300 min de duração'
             });
         }
 
-        if (!genero) { 
-            return res.status(400).json({
-                error:'O genero e obrigatorio'
+        if (!genero) {
+            return res.status(400).json({ 
+                error: 'O genero e obrigatorio' 
             });
         }
 
         if (!GenerosValidos.includes(genero)) {
             return res.status(400).json({
                 error: 'Genero invalido. Generos validos: Ação, Drama, Comédia, Terror, Romance, Animação, Ficção Científica, Suspense'
-            }); 
-        }    
+            });
+        }
 
         if (nota === undefined || nota === null) {
-            return res.status(400).json({
-                error: 'A nota e obrigatoria'
+            return res.status(400).json({ 
+                error: 'A nota deve estar entre 0 e 10!' 
             });
         }
 
         const notaNum = Number(nota);
         if (isNaN(notaNum) || notaNum < 0 || notaNum > 10) {
-            return res.status(400).json({
-                error: 'A nota deve ser um numero entre 0 e 10'
+            return res.status(400).json({ 
+                error: 'A nota deve estar entre 0 e 10!)' 
             });
         }
 
@@ -114,90 +118,14 @@ export const create = async (req, res) => {
         });
 
         res.status(201).json({
-            message: 'Sucesso! Novo filme adicionado ao catálogo!'
-            });
-        } catch (error) {
-            console.log('Erro ao criar:', error);
-            res.status(500).json({
-                error: 'Erro ao salvar o filme. Tente novamente.' 
-            });
-          }
-     };
-    
-        if (available == undefined) return res.status(400).json({ error: `O filme deve ser válido`});
-
-        const notaNum = Number(nota);
-        if (isNaN(notaNum) || notaNum < 0 || notaNum > 10) {
-            return res.status(400).json({ error: 'A nota (nota) deve ser um número válido!' });
-        }
-
-        if (typeof titulo !== 'string' || titulo.length < 3) {
-            return res.status(400).json({
-                message: 'O titulo deve ter no mínimo 3 caracteres'
-            });
-        }
-
-        if (typeof descricao !== 'string' || descricao.length < 10) {
-            return res.status(400).json({
-                message: 'A descricao deve ter no minimo 10 caracteres'
-            });
-        }
-
-        const generosVaidos = ['Ação', 'Drama', 'Comédia', 'Terror', 'Romance', 'Animação', 'Ficção Científica', 'Suspense'];
-
-        if (!generosVaidos.includes(genero)) {
-            return res.status(400).json({
-                message: 'Gênero invalido'
-            });
-        }
-
-        const Duracao = parseInt(duracao);
-
-        if (isNaN(Duracao)) {
-            return res.status(400).json({
-                error: 'A duração deve ser um número inteiro'
-            });
-        }
-
-        if (Duracao < 0) {
-            return res.status(400).json({
-                error: 'Valor inválido',
-                message: 'A duração deve ser um número positivo!'
-            });
-        }
-
-        if (Duracao > 300) {
-            return res.status(400).json({
-                error: 'Numero invalido',
-                message: 'A duração deve estar abaixo de 300 minutos'
-            });
-        }
-
-        const data = await filmeModel.create({
-            titulo,
-            descricao,
-            duracao: Duracao,
-            genero,
-            nota: notaNum,
-            available
-        });
-
-        const filmeExiste = await prisma.filme.findFirst();
-
-        if (filmeExiste) {
-            return res.status(400).json({error: 'Já existe um filme com esse titulo'})
-        }
-
-        res.status(201).json({
-            message: 'Registro cadastrado com sucesso!',
-            data,
+            message: 'Sucesso! Novo filme adicionado ao catálogo!',
+            filme: data,
         });
     } catch (error) {
         console.error('Erro ao criar:', error);
-        res.status(500).json({ error: 'Erro interno no servidor ao salvar o registro.' });
+        res.status(500).json({ error: 'Erro ao salvar o filme. Tente novamente.' });
     }
 };
-
 export const getById = async (req, res) => {
     try {
         const { id } = req.params;
