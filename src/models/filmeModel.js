@@ -5,14 +5,27 @@ export const create = async (data) => {
 };
 
 export const findAll = async (filters = {}) => {
-    const { titulo, descricao, duracao, genero, nota} = filters;
+    const {title,
+           genre,
+           available,
+           minRating,
+           maxDuration,
+           titulo,
+           genero,
+           nota,
+           duracao,} = filters;
     const where = {};
 
-    if (titulo) where.titulo = { contains: titulo, mode: 'insensitive' };
-    if (descricao) where.descricao = { contains: descricao, mode: 'insensitive' };
-    if (duracao !== undefined) where.duracao = parseInt(duracao);
-    if (genero) where.genero = {contains: genero, mode: 'insensitive'}
-    if (nota !== undefined) where.nota = parseFloat(nota);
+     const titleFilter = title ?? titulo;
+    const genreFilter = genre ?? genero;
+    const minRatingFilter = minRating ?? nota;
+    const maxDurationFilter = maxDuration ?? duracao;
+
+    if (titleFilter) where.titulo = { contains: titleFilter, mode: 'insensitive' };
+    if (genreFilter) where.genero = { contains: genreFilter, mode: 'insensitive' };
+    if (available !== undefined) where.available = available;
+    if (minRatingFilter !== undefined) where.nota = { gte: parseFloat(minRatingFilter) };
+    if (maxDurationFilter !== undefined) where.duracao = { lte: parseInt(maxDurationFilter) };
 
     return await prisma.filme.findMany({
         where,
