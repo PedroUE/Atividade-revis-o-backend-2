@@ -164,7 +164,7 @@ export const update = async (req, res) => {
             });
         }
 
-        if (!exists.available === false) {
+        if (exists.available === false) {
             return res.status(403).json({
                 error: 'Esse filme foi removido',
                 message: 'Não é possivel atualizar filmes indisponiveis.'
@@ -174,20 +174,21 @@ export const update = async (req, res) => {
         const { titulo, descricao, duracao, genero, nota } = req.body;
 
         if (titulo !== undefined) {
-            if (typeof titulo !== 'String' || titulo.trim().length < 3 ) {
+            if (typeof titulo !== 'string' || titulo.trim().length < 3) {
                 error: 'O titulo precisa ter pelo menos 3 caracteres'
             });
         }
 
         const filmeComTitulo = await prisma.filme.findFirst({
             where: {
-                titulo: titulo.trim()
+                titulo: titulo.trim(),
+                NOT: { id: parseInt(id) }
             }
         });
 
-        if (filmeComTitulo) {
-            return res.status(400).json({
-                error: 'Ja tem um filme com esse titulo no catalogo'
+       if (filmeComTitulo) {
+                return res.status(400).json({
+                    error: 'Ja tem um filme com esse titulo no catalogo'
                 });
             }
         }
