@@ -1,4 +1,5 @@
 import * as filmeModel from '../models/filmeModel.js';
+import prisma from '../utils/prismaClient.js';
 
 const GenerosValidos = ['Ação', 'Drama', 'Comédia', 'Terror', 'Romance', 'Animação', 'Ficção Científica', 'Suspense'];
 
