@@ -175,16 +175,16 @@ export const update = async (req, res) => {
 
         if (titulo !== undefined) {
             if (typeof titulo !== 'string' || titulo.trim().length < 3) {
-                error: 'O titulo precisa ter pelo menos 3 caracteres'
-            });
-        }
-
-        const filmeComTitulo = await prisma.filme.findFirst({
-            where: {
-                titulo: titulo.trim(),
-                NOT: { id: parseInt(id) }
+                return res.status(400).json({
+                    error: 'O titulo precisa ter pelo menos 3 caracteres'
+                });
             }
-        });
+        const filmeComTitulo = await prisma.filme.findFirst({
+                where: {
+                    titulo: titulo.trim(),
+                    NOT: { id: parseInt(id) }
+                }
+            });
 
        if (filmeComTitulo) {
                 return res.status(400).json({
