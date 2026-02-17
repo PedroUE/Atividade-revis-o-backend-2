@@ -153,73 +153,99 @@ export const update = async (req, res) => {
             });
         }
 
-        if (isNaN(id)) return res.status(400).json({ error: 'ID inválido.' });
+        if (isNaN(id)) return res.status(400).json({
+            error: 'ID inválido.'
+        });
 
         const exists = await filmeModel.findById(id);
         if (!exists) {
-            return res.status(404).json({ error: 'Registro não encontrado para atualizar.' });
-        }
-        const notaNum = Number(nota);
-        if (isNaN(notaNum) || notaNum < 0 || notaNum > 10) {
-            return res.status(400).json({ error: 'A nota (nota) deve ser um número válido!' });
-        }
-
-        if (typeof titulo !== 'string' || titulo.length < 3) {
-            return res.status(400).json({
-                message: 'O titulo deve ter no mínimo 3 caracteres',
+            return res.status(404).json({
+                error: 'Registro não encontrado para atualizar.'
             });
         }
 
-        if (typeof descricao !== 'string' || descricao.length < 10) {
-            return res.status(400).json({
-                message: 'A descricao deve ter no minimo 10 caracteres',
+        if (!exists.available === false) {
+            return res.status(403).json({
+                error: 'Esse filme foi removido',
+                message: 'Não é possivel atualizar filmes indisponiveis.'
             });
         }
 
-        const generosVaidos = [
-            'Ação',
-            'Drama',
-            'Comédia',
-            'Terror',
-            'Romance',
-            'Animação',
-            'Ficção Científica',
-            'Suspense',
-        ];
+        const { titulo, descricao, duracao, genero, nota } = req.body;
 
-        if (!generosVaidos.includes(genero)) {
-            return res.status(400).json({
-                message: 'Gênero invalido',
+        if (titulo !== undefined) {
+            if (typeof titulo !== 'String' || titulo.trim().length < 3 ) {
+                error: 'O titulo precisa ter pelo menos 3 caracteres'
             });
         }
 
-        const Duracao = parseInt(duracao);
+        const filmeComTitulo = await prisma.filme.findFirst({
+            where: {
+                titulo: titulo.trim()
+            }
+        });
 
-        if (isNaN(Duracao)) {
+        if (filmeComTitulo) {
             return res.status(400).json({
-                error: 'A duração deve ser um número inteiro',
-            });
+                error: 'Ja tem um filme com esse titulo no catalogo'
+                });
+            }
         }
 
-        if (Duracao < 0) {
-            return res.status(400).json({
-                error: 'Valor inválido',
-                message: 'A duração deve ser um número positivo!',
-            });
+        if (descricao !== undefined) {
+            if (typeof descricao !== 'string' || descricao.trim().length < 10) {
+                return res.status(400).json({
+                    error: 'A descricao deve ter pelo menos 10 caracteres',
+                });
+            }
         }
 
-        if (Duracao > 300) {
-            return res.status(400).json({
-                error: 'Numero invalido',
-                message: 'A duração deve estar abaixo de 300 minutos',
-            });
+        if (duracao !== undefined) {
+            const duracaoNum = parseInt(duracao);
+
+            if (isNaN(duracaoNum || duracaoNum <= 0) {
+                return res.status(400).json({
+                    error: 'A duracao deve ser um numero positivo',
+                });
+            }   
+
+        if (duracaoNum > 300) {
+                return res.status(400).json({
+                    error: 'Máximo permitido de duração: 300 minutos.',
+                });
+            }
+        }    
+
+        if (genero !== undefined) {
+            if (!GENEROS_VALIDOS.includes(genero)) {
+                return res.status(400).json({
+                    error: 'Genero invalido. Generos validos: Ação, Drama, Comédia, Terror, Romance, Animação, Ficção Científica, Suspense'
+                });
+            }
         }
-        
+
+        if (nota !== undefined) {
+            const notaNum = Number(nota);
+            if (isNaN(notaNum) || notaNum < 0 || notaNum > 10) {
+                return res.status(400).json({ 
+                    error: ' A nota deve estar entre 0 e 10' 
+                });
+            }
+        }
+
+        const dataUpdate = {};
+        if (titulo !== undefined) dataUpdate.titulo = titulo.trim();
+        if (descricao !== undefined) dataUpdate.descricao = descricao.trim();
+        if (duracao !== undefined) dataUpdate.duracao = parseInt(duracao);
+        if (genero !== undefined) dataUpdate.genero = genero;
+        if (nota !== undefined) dataUpdate.nota = Number(nota);
         const data = await filmeModel.update(id, req.body);
+    
         res.json({
             message: `O registro "${data.titulo}" foi atualizado com sucesso!`,
             data,
         });
+    
     } catch (error) {
         console.error('Erro ao atualizar:', error);
         res.status(500).json({ error: 'Erro ao atualizar registro' });
