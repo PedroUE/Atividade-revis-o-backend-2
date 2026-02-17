@@ -59,9 +59,71 @@ export const create = async (req, res) => {
                 error: 'A descrição é muito curta! Precisa ter pelo menos 10 caracteres.'
             });
         }
-        
-        if (!genero) return res.status(400).json({ error: 'O genero (genero) é obrigatório!' });
-        if (!nota === undefined) return remove.status(400).json({ error: 'A nota (nota) é obrigatória'});
+
+        if (duracao === undefined || duracao null) {
+            return res.status(400).json({
+                error: 'A duração é obrigatória'
+            });
+        }
+
+        const duracaoNum  = parseInt(duracao);
+        if (isNaN(duracaoNum) || duracaoNum <= 0) {
+            return res.status(400).json({
+                error: 'A duracao precisa ser um numero positivo'
+            });
+        }
+
+        if (duracaoNum > 300) {
+            return res.status(400).json({
+                error: 'O maximo permitido e 300 minutos!'
+            });
+        }
+
+        if (!genero) { 
+            return res.status(400).json({
+                error:'O genero e obrigatorio'
+            });
+        }
+
+        if (!GenerosValidos.includes(genero)) {
+            return res.status(400).json({
+                error: 'Genero invalido. Generos validos: Ação, Drama, Comédia, Terror, Romance, Animação, Ficção Científica, Suspense'
+            }); 
+        }    
+
+        if (nota === undefined || nota === null) {
+            return res.status(400).json({
+                error: 'A nota e obrigatoria'
+            });
+        }
+
+        const notaNum = Number(nota);
+        if (isNaN(notaNum) || notaNum < 0 || notaNum > 10) {
+            return res.status(400).json({
+                error: 'A nota deve ser um numero entre 0 e 10'
+            });
+        }
+
+        const data = await filmeModel.create({
+            titulo: titulo.trim(),
+            descricao: descricao.trim(),
+            duracao: duracaoNum,
+            genero,
+            nota: notaNum,
+            available: true
+        });
+
+        res.status(201).json({
+            message: 'Sucesso! Novo filme adicionado ao catálogo!'
+            });
+        } catch (error) {
+            console.log('Erro ao criar:', error);
+            res.status(500).json({
+                error: 'Erro ao salvar o filme. Tente novamente.' 
+            });
+          }
+     };
+    
         if (available == undefined) return res.status(400).json({ error: `O filme deve ser válido`});
 
         const notaNum = Number(nota);
