@@ -256,16 +256,23 @@ export const remove = async (req, res) => {
     try {
         const { id } = req.params;
 
-        if (isNaN(id)) return res.status(400).json({ error: 'ID inválido.' });
+        if (isNaN(id)) {
+            return res.status(400).json({
+                error: 'ID inválido.'
+            });
+        }    
 
+        
         const exists = await filmeModel.findById(id);
         if (!exists) {
-            return res.status(404).json({ error: 'Registro não encontrado para deletar.' });
+            return res.status(404).json({
+                error: 'Registro não encontrado para deletar.'
+            });
         }
 
         if (exists.nota >= 9) {
-            return res.status(403)({
-                error: 'Proibido',
+            return res.status(403).json({
+                error: 'Proibido deletar um classico!',
                 message: `O filme ${titulo} tem nota ${nota} e é um classico!`
             });
         }
