@@ -26,8 +26,40 @@ export const create = async (req, res) => {
 
         const { titulo, descricao, duracao, genero, nota, available } = req.body;
 
-        if (!titulo) return res.status(400).json({ error: 'O titulo (titulo) é obrigatório!' });
-        if (!duracao) return res.status(400).json({ error: 'a duracao (duracao) é obrigatória!' });
+       if (!titulo) {
+            return res.status(400).json({ 
+                error: 'O filme precisa de um título!' 
+            });
+       }
+        
+        if (typeof titulo !== 'string' || titulo.trim().length < 3) {
+            return res.status(400).json({
+                error: 'O titulo precisa ter pelo menos 3 letras'
+            });
+        }
+
+        const filmeExistente = await prisma.filme.findFirst({
+            where: { titulo: titulo.trim() }
+        });
+
+        if (filmeExistente) {
+            return res.status(400).json({ 
+                error: 'O Filme com este titulo ja esta catalogado. Tente outro título.' 
+            });
+        }
+
+        if(!descricao) {
+            return res.status(400).json({
+                error: 'É obrigatório uma descrição para o filme.'
+            });
+        }
+
+        if (typeof descricao !== 'string' || descricao.trim().length < 10) {
+            return res.status(400).json({
+                error: 'A descrição é muito curta! Precisa ter pelo menos 10 caracteres.'
+            });
+        }
+        
         if (!genero) return res.status(400).json({ error: 'O genero (genero) é obrigatório!' });
         if (!nota === undefined) return remove.status(400).json({ error: 'A nota (nota) é obrigatória'});
         if (available == undefined) return res.status(400).json({ error: `O filme deve ser válido`});
