@@ -219,7 +219,7 @@ export const update = async (req, res) => {
         }    
 
         if (genero !== undefined) {
-            if (!GENEROS_VALIDOS.includes(genero)) {
+            if (!GenerosValidos.includes(genero)) {
                 return res.status(400).json({
                     error: 'Genero invalido. Generos validos: Ação, Drama, Comédia, Terror, Romance, Animação, Ficção Científica, Suspense'
                 });
